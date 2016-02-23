@@ -44,7 +44,7 @@ cache:
 # to run your custom scripts instead of automatic MSBuild
 build_script:
   - cmd: cd .. && mkdir build && cd build
-  - cmd: python ../support/configure.py --enable-optimize --disable-auto-versioning --metamod="../metamod-am" --hlsdk="../hlsdk"
+  - cmd: python ../configure.py --enable-optimize --disable-auto-versioning --metamod="../metamod-am" --hlsdk="../hlsdk"
   - cmd: ambuild
 
 #---------------------------------#

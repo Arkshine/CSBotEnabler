@@ -9,5 +9,5 @@ before_script:
   - $CHECKOUT_DIR/support/checkout-deps.sh && cd $CHECKOUT_DIR
 script:
   - mkdir build && cd build
-  - python ../support/configure.py --enable-optimize
+  - python ../configure.py --enable-optimize
   - ambuild

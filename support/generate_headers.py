@@ -49,7 +49,7 @@ def output_version_headers():
   with FolderChanger(SourceFolder):
     count, shorthash, longhash = get_git_version()
 
-  with open(os.path.join(SourceFolder, '..', 'product.version')) as fp:
+  with open(os.path.join(SourceFolder, 'product.version')) as fp:
     contents = fp.read()
   m = re.match('(\d+)\.(\d+)\.(\d+)-?(.*)', contents)
   if m == None:
