@@ -1,3 +1,6 @@
 [submodule "amtl"]
 	path = public/amtl
 	url = https://github.com/alliedmodders/amtl.git
+[submodule "public/amtl"]
+	path = public/amtl
+	url = https://github.com/alliedmodders/amtl.git
