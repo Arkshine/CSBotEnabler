@@ -2,7 +2,7 @@
 trap "exit" INT
 
 if [ ! -d "amxmodx" ]; then
-  git clone https://github.com/Arkshine/CSBotEnabler.git
+  git clone --recursive https://github.com/Arkshine/CSBotEnabler.git
 fi
 
 checkout ()
