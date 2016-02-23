@@ -1,0 +1,13 @@
+language: cpp
+compiler:
+  - clang
+before_script:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y g++-multilib libc6-dev-i386 lib32stdc++6 lib32z1-dev
+  - CHECKOUT_DIR=$PWD && cd .. 
+  - chmod a+x $CHECKOUT_DIR/support/checkout-deps.sh 
+  - $CHECKOUT_DIR/support/checkout-deps.sh && cd $CHECKOUT_DIR
+script:
+  - mkdir build && cd build
+  - python ../support/configure.py --enable-optimize
+  - ambuild

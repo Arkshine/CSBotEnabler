@@ -1,0 +1,330 @@
+# vim: set sts=2 ts=8 sw=2 tw=99 et ft=python :
+import os
+import subprocess
+import locale
+
+class ModuleConfig(object):
+  def __init__(self):
+    self.metamod_path = None
+    self.hlsdk_path = None
+    self.generated_headers = []
+    self.versionlib = None
+    self.stdcxx_path = None
+
+  def use_auto_versioning(self):
+    if builder.backend != 'amb2':
+      return False
+    return not getattr(builder.options, 'disable_auto_versioning', False)
+
+  def detectProductVersion(self):
+    builder.AddConfigureFile('product.version')
+
+    # For OS X dylib versioning
+    import re
+    with open(os.path.join(builder.sourcePath, 'product.version'), 'r') as fp:
+      productContents = fp.read()
+    m = re.match('(\d+)\.(\d+)\.(\d+).*', productContents)
+    if m == None:
+      self.productVersion = '1.0.0'
+    else:
+      major, minor, release = m.groups()
+      self.productVersion = '{0}.{1}.{2}'.format(major, minor, release)
+
+  def detectMetamod(self):
+    metamod_path = builder.options.metamod_path
+    if not len(metamod_path):
+      metamod_path = os.getenv('METAMOD', '')
+
+    if len(metamod_path):
+      self.metamod_path = os.path.join(builder.originalCwd, metamod_path)
+      if not os.path.exists(os.path.join(self.metamod_path, 'metamod')):
+        raise Exception('Metamod path does not exist: {0}'.format(metamod_path))
+    else:
+      try_paths = [
+        os.path.join(builder.sourcePath, '..', 'metamod'),
+        os.path.join(builder.sourcePath, '..', 'metamod-am'),
+        os.path.join(builder.sourcePath, '..', 'metamod-hl1'),
+      ]
+      for try_path in try_paths:
+        if os.path.exists(os.path.join(try_path, 'metamod')):
+          self.metamod_path = os.path.normpath(try_path)
+          break
+      if not self.metamod_path:
+        raise Exception('Could not find the source code to Metamod! Try passing --metamod to configure.py.')
+
+  def detectHlsdk(self):
+    hlsdk_path = builder.options.hlsdk_path
+    if not len(hlsdk_path):
+      hlsdk_path = os.getenv('HLSDK', '')
+
+    if len(hlsdk_path):
+      self.hlsdk_path = os.path.join(builder.originalCwd, hlsdk_path)
+      if not os.path.exists(self.hlsdk_path):
+        raise Exception('Metamod path does not exist: {0}'.format(hlsdk_path))
+    else:
+      try_paths = [
+        os.path.join(builder.sourcePath, '..', 'hlsdk'),
+      ]
+      for try_path in try_paths:
+        if os.path.exists(try_path):
+          self.hlsdk_path = os.path.normpath(try_path)
+          break
+      if not self.hlsdk_path:
+        raise Exception('Could not find the HLSDK! Try passing --hlsdk to configure.py.')
+
+  # Returns list of lines of output from the compiler
+  @staticmethod
+  def invokeCompiler(args):
+    if builder.compiler:
+      p = subprocess.Popen(builder.compiler.argv + args, stdout=subprocess.PIPE)
+      output = p.communicate()[0]
+      if hasattr(output,'encoding') and output.encoding is not None:
+          encoding = output.encoding
+      else:
+          encoding = locale.getpreferredencoding()
+      return output.decode(encoding, 'replace').split('\n')
+    return None
+
+  def configure(self):
+    cfg = builder.DetectCompilers()
+    cxx = cfg.cxx
+
+    if cxx.behavior == 'gcc':
+      cfg.cflags += [
+        '-pipe',
+        '-fno-strict-aliasing',
+        '-Wall',
+        '-Werror',
+        '-Wno-uninitialized',
+        '-Wno-unused',
+        '-Wno-switch',
+        '-Wno-format',
+        '-Wno-format-security',
+        '-m32',
+      ]
+      cfg.cxxflags += [
+        '-Wno-invalid-offsetof',
+        '-std=c++11',
+      ]
+
+      cfg.linkflags += ['-m32']
+
+      have_gcc = cxx.name == 'gcc'
+      have_clang = cxx.name == 'clang'
+
+      if have_clang or (have_gcc and cxx.version >= '4'):
+        cfg.cflags += ['-fvisibility=hidden']
+        cfg.cxxflags += ['-fvisibility-inlines-hidden']
+        if have_clang or (have_gcc and cxx.version >= '4.6'):
+          cfg.cflags += ['-Wno-narrowing']
+        if (have_gcc and cxx.version >= '4.7') or (have_clang and cxx.version >= '3'):
+          cfg.cxxflags += ['-Wno-delete-non-virtual-dtor']
+        if have_gcc and cxx.version >= '4.8':
+          cfg.cflags += ['-Wno-unused-result', '-Wno-error=sign-compare']
+      if have_clang:
+        cfg.cxxflags += ['-Wno-implicit-exception-spec-mismatch']
+        if cxx.version >= 'apple-clang-5.1' or cxx.version >= 'clang-3.4':
+          cfg.cxxflags += ['-Wno-deprecated-register']
+        else:
+          cfg.cxxflags += ['-Wno-deprecated']
+        cfg.cflags += ['-Wno-sometimes-uninitialized']
+        if builder.target_platform == 'linux' and cxx.version >= '3.6':
+          cfg.cxxflags += ['-Wno-inconsistent-missing-override']
+          
+      if have_gcc:
+        cfg.cflags += ['-Wno-parentheses']
+        cfg.c_only_flags += ['-std=c99']
+      elif have_clang:
+        cfg.cflags += ['-Wno-logical-op-parentheses']
+
+      cfg.cxxflags += [
+        '-fno-exceptions',
+        '-fno-rtti',
+      ]
+    elif cxx.name == 'msvc':
+      if builder.options.debug == '1':
+        cfg.cflags += ['/MTd']
+        cfg.linkflags += ['/NODEFAULTLIB:libcmt']
+      else:
+        cfg.cflags += ['/MT']
+      cfg.defines += [
+        '_CRT_SECURE_NO_DEPRECATE',
+        '_CRT_SECURE_NO_WARNINGS',
+        '_CRT_NONSTDC_NO_DEPRECATE',
+        '_ITERATOR_DEBUG_LEVEL=0',
+      ]
+      cfg.cflags += [
+        '/W3',
+      ]
+      cfg.cxxflags += [
+        '/EHsc',
+        '/GR-',
+        '/TP',
+      ]
+      cfg.linkflags += [
+        '/MACHINE:X86',
+        '/SUBSYSTEM:WINDOWS',
+        'kernel32.lib',
+        'user32.lib',
+        'gdi32.lib',
+        'winspool.lib',
+        'comdlg32.lib',
+        'advapi32.lib',
+        'shell32.lib',
+        'ole32.lib',
+        'oleaut32.lib',
+        'uuid.lib',
+        'odbc32.lib',
+        'odbccp32.lib',
+      ] 
+
+    # Optimization
+    if builder.options.opt == '1':
+      cfg.defines += ['NDEBUG']
+      if cxx.behavior == 'gcc':
+        cfg.cflags += ['-O2']
+      elif cxx.behavior == 'msvc':
+        cfg.cflags += ['/Ox']
+        cfg.linkflags += ['/OPT:ICF', '/OPT:REF']
+
+    # Debugging
+    if builder.options.debug == '1':
+      cfg.defines += ['DEBUG', '_DEBUG']
+      if cxx.behavior == 'msvc':
+        cfg.cflags += ['/Od', '/RTC1']
+
+    # This needs to be after our optimization flags which could otherwise disable it.
+    if cxx.name == 'msvc':
+      # Don't omit the frame pointer.
+      cfg.cflags += ['/Oy-']
+
+    # Platform-specifics
+    if builder.target_platform == 'linux':
+      cfg.defines += ['_LINUX', 'POSIX', 'LINUX']
+      cfg.postlink += ['-ldl', '-lm']
+      if cxx.name == 'gcc':
+        cfg.postlink += ['-static-libgcc']
+      elif cxx.name == 'clang':
+        cfg.postlink += ['-lgcc_eh']
+      if cxx.behavior == 'gcc':
+        self.stdcxx_path = self.invokeCompiler(['-m32', '-print-file-name=' + 'libstdc++.a'])[0]
+    elif builder.target_platform == 'mac':
+      cfg.defines += ['OSX', '_OSX', 'POSIX']
+      cfg.cflags += ['-mmacosx-version-min=10.5']
+      cfg.postlink += [
+        '-mmacosx-version-min=10.5',
+        '-arch', 'i386',
+        '-lstdc++',
+        '-stdlib=libstdc++',
+        '-framework', 'CoreServices',
+      ]
+      cfg.cxxflags += ['-stdlib=libstdc++']
+    elif builder.target_platform == 'windows':
+      cfg.defines += ['WIN32', '_WINDOWS']
+
+    # Finish up.
+    cfg.defines += [
+      'AMX_NOPROPLIST',
+      'PAWN_CELL_SIZE=32',
+      'MODULE_BUILD',
+      'MODULE_USE_VERSIONLIB',
+    ]
+
+    if self.use_auto_versioning():
+        cfg.defines += ['MODULE_GENERATED_BUILD']
+        cfg.includes += [os.path.join(builder.buildPath, 'includes')]
+        cfg.includes += [os.path.join(builder.sourcePath, 'support', 'versionlib')]
+        
+    cfg.includes += [os.path.join(builder.sourcePath, 'public')]
+    cfg.includes += [os.path.join(builder.sourcePath, 'public', 'sdk')]
+    cfg.includes += [os.path.join(builder.sourcePath, 'public', 'amtl')]
+    cfg.includes += [os.path.join(builder.sourcePath, 'public', 'amtl', 'amtl')]
+    cfg.includes += [os.path.join(builder.sourcePath, 'public', 'memtools')]
+    return
+
+  #
+  # Low-level compiler and binary construction.
+  #
+
+  def ConfigureForModule(self, context, compiler):
+    compiler.cxxincludes += [
+      os.path.join(context.currentSourcePath),
+      os.path.join(context.currentSourcePath, 'sdk'),
+      os.path.join(self.metamod_path, 'metamod'),
+      os.path.join(self.hlsdk_path, 'common'),
+      os.path.join(self.hlsdk_path, 'dlls'),
+      os.path.join(self.hlsdk_path, 'engine'),
+      os.path.join(self.hlsdk_path, 'game_shared'),
+      os.path.join(self.hlsdk_path, 'public'),
+      os.path.join(self.hlsdk_path, 'pm_shared'),
+    ]
+    return compiler
+
+  def AddVersioning(self, binary):
+    if builder.target_platform == 'windows':
+      binary.compiler.rcdefines += [
+        'BINARY_NAME="{0}"'.format(binary.outputFile),
+        'RC_COMPILE',
+      ]
+      if self.use_auto_versioning():
+        binary.compiler.rcdefines += ['MODULE_GENERATED_BUILD']
+    elif builder.target_platform == 'mac':
+      if binary.type == 'library':
+        binary.compiler.postlink += [
+          '-compatibility_version', '1.0.0',
+          '-current_version', self.productVersion
+        ]
+    if self.use_auto_versioning():
+      binary.compiler.linkflags += [self.versionlib]
+      binary.compiler.sourcedeps += Module.generated_headers
+    return binary
+
+  #
+  # High level job construction for libraries, metamod plugins, modules, and
+  # executables.
+  #
+
+  def Library(self, context, name):
+    binary = context.compiler.Library(name)
+    return self.AddVersioning(binary)
+
+  def MetaPlugin(self, context, name):
+    if builder.target_platform == 'mac' or builder.target_platform == 'windows':
+      name = name + '_mm'
+    elif builder.target_platform == 'linux':
+      name = name + '_mm_i386'
+    binary = context.compiler.Library(name)
+    self.ConfigureForModule(context, binary.compiler)
+    return self.AddVersioning(binary)
+
+  def MetaModule(self, context, name):
+    if builder.target_platform == 'mac' or builder.target_platform == 'windows':
+      name = name + '_amxx'
+    elif builder.target_platform == 'linux':
+      name = name + '_amxx_i386'
+    binary = context.compiler.Library(name)
+    self.ConfigureForModule(context, binary.compiler)
+    return self.AddVersioning(binary)
+
+  def Program(self, context, name):
+    binary = context.compiler.Program(name)
+    return self.AddVersioning(binary)
+
+Module = ModuleConfig()
+Module.detectProductVersion()
+Module.detectMetamod()
+Module.detectHlsdk()
+Module.configure()
+
+if Module.use_auto_versioning():
+  Module.generated_headers = builder.RunScript(
+    'support/Versioning',
+    { 'Module': Module }
+  )
+  Module.versionlib = builder.RunScript(
+    'support/versionlib/AMBuilder',
+    { 'Module': Module }
+  )
+
+builder.RunScript('module/AMBuilder', {'Module': Module})
+

@@ -1,0 +1,56 @@
+#---------------------------------#
+#      general configuration      #
+#---------------------------------#
+
+# branches to build
+branches:
+  only:
+    - master
+
+# do not build on tags (GitHub only)
+skip_tags: true
+
+# donwload specific commit as a zip archive (GitHub only)
+shallow_clone: true
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+
+# scripts that are called at very beginning, before repo cloning
+init:
+  - git config --global core.autocrlf input
+
+# scripts that run after cloning repository
+install:
+  - cmd: if not exist ambuild    (git clone -q --branch=master https://github.com/alliedmodders/ambuild)
+  - cmd: if not exist metamod-am (git clone -q --branch=master https://github.com/alliedmodders/metamod-hl1 metamod-am)
+  - cmd: if not exist hlsdk      (git clone -q --branch=master https://github.com/alliedmodders/hlsdk)
+  - cmd: cd ambuild && python setup.py install
+  
+  - cmd: call "%VS100COMNTOOLS%/../../VC/vcvarsall.bat" x86  # setup mcvc paths
+  - cmd: set PATH=%PATH%;C:/Python27/Scripts                 # export ambuild script
+  
+# build cache
+cache:
+  - ambuild
+  - metamod-am
+  - hlsdk
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+
+# to run your custom scripts instead of automatic MSBuild
+build_script:
+  - cmd: cd .. && mkdir build && cd build
+  - cmd: python ../support/configure.py --enable-optimize --disable-auto-versioning --metamod="../metamod-am" --hlsdk="../hlsdk"
+  - cmd: ambuild
+
+#---------------------------------#
+#      artifacts configuration    #
+#---------------------------------#
+
+artifacts:
+  - path: build/$(appveyor_project_slug)_amxx/$(appveyor_project_slug)_amxx.dll
+    name: $(appveyor_project_name)

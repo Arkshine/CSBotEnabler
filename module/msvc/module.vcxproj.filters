@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{b7c8d7e1-107d-4691-97d9-f7d7f5942fd2}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{ad8a6ded-a0c4-4867-af3d-d65ad9b0a4f7}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="Module SDK">
+      <UniqueIdentifier>{82394090-b965-4156-8bd6-2136b30074f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module SDK\SDK Base">
+      <UniqueIdentifier>{8834738c-daf5-410f-8d1c-a541b53a9aee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource File">
+      <UniqueIdentifier>{729662b5-de3c-4831-9bd3-6a2cca65d74d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\public\sdk\amxxmodule.cpp">
+      <Filter>Module SDK\SDK Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\module.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\memory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gamedata.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\moduleconfig.h">
+      <Filter>Module SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\module.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\public\sdk\amxxmodule.h">
+      <Filter>Module SDK\SDK Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gamedata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\version.rc">
+      <Filter>Resource File</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
