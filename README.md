@@ -1,6 +1,6 @@
 
 ![image](http://i.imgur.com/xpKqV6U.jpg)
-# CS Bot Enabler [![Build Status](https://travis-ci.org/Arkshine/CSBotEnabler.svg?branch=master)](https://travis-ci.org/Arkshine/CSBotEnabler) [![Build status](https://ci.appveyor.com/api/projects/status/nu0u6ofigy48epiq/branch/master?svg=true)](https://ci.appveyor.com/project/Arkshine/csbotenabler/branch/master)
+# CS Bot Enabler [![GitHub version](https://badge.fury.io/gh/Arkshine%2FCSBotEnabler.svg)](https://badge.fury.io/gh/Arkshine%2FCSBotEnabler) [![Build Status](https://travis-ci.org/Arkshine/CSBotEnabler.svg?branch=master)](https://travis-ci.org/Arkshine/CSBotEnabler) [![Build status](https://ci.appveyor.com/api/projects/status/nu0u6ofigy48epiq/branch/master?svg=true)](https://ci.appveyor.com/project/Arkshine/csbotenabler/branch/master)
 
 A Metamod module to enable CS Bot in Counter-Strike 1.6.
 
