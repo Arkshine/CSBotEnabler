@@ -80,7 +80,7 @@ bool EnableCsBot()
 		void*         address_original;
 	};
 
-	#define SIGNATURE(name, address)  SIGNATURE_##name, ARRAY_LENGTH(SIGNATURE_##name), #name, reinterpret_cast<void*>(address)
+	#define SIGNATURE(name, address)  SIGNATURE_##name, sizeof(SIGNATURE_##name), #name, reinterpret_cast<void*>(address)
 
 	sigData signatures[] =
 	{
@@ -109,6 +109,20 @@ bool EnableCsBot()
 			ClientPrintOriginalAddress = reinterpret_cast<pfnClientPrint>(signature.address_original);
 		}
 	}
+
+#if defined(KE_WINDOWS)
+	auto address = memUtils->FindSymbol(SIGNATURE_HOSTAGE_IDLETHINK);
+#else
+	auto address = memUtils->FindPattern(SIGNATURE_HOSTAGE_IDLETHINK, sizeof(SIGNATURE_HOSTAGE_IDLETHINK));
+#endif
+
+	if (!memUtils->ProtectMemory(address, sizeof(HOSTAGE_IDLETHINK_REPLACE), PAGE_EXECUTE_READWRITE))
+	{
+		LOG_CONSOLE(PLID, "   Error: Could not patch \"HOSTAGE_IDLETHINK\"", MODULE_NAME);
+		return false;
+	}
+
+	memcpy(address, HOSTAGE_IDLETHINK_REPLACE, sizeof(HOSTAGE_IDLETHINK_REPLACE));
 
 	return true;
 }

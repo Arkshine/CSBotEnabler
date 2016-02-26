@@ -99,6 +99,8 @@ public:
 	void *FindPatternWithoutWildCard(const byte *pattern, const size_t length, const size_t stepSize = sizeof(byte));
 	void *FindPattern(const byte *pattern, const size_t length, const size_t stepSize = sizeof(byte), const byte wildCard = '*');
 
+	void *FindSymbol(const char *symbol);
+
 	bool GetLibraryInfo(const void *libPtr, DynLibInfo &lib);
 
 private:

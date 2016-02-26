@@ -83,6 +83,19 @@ void* Memory::FindPattern(const byte *pattern, const size_t length, const size_t
 	return nullptr;
 }
 
+void* Memory::FindSymbol(const char *symbol)
+{
+	void *address = nullptr;
+
+#if defined(KE_WINDOWS)
+
+	address = GetProcAddress(static_cast<HMODULE>(m_LibraryInfos.baseAddress), symbol);
+
+#endif
+
+	return address;
+}
+
 bool Memory::GetLibraryInfo(const void *libPtr, DynLibInfo &lib)
 {
 	uintptr_t baseAddr;

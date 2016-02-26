@@ -24,6 +24,8 @@
 	const byte SIGNATURE_VALIDATE_MAP_DATA[] = { SIGNATURE_BASE2,0xC6,'*','*','*','*','*','*',0xE8,'*','*','*','*',0x85 };
 	const byte SIGNATURE_PROCESS_ADD_BOT  [] = { SIGNATURE_BASE2,0x8B,'*','*','*',0x8B };
 	const byte SIGNATURE_CLIENT_PRINT     [] = { SIGNATURE_BASE ,0x83,'*','*',0x8A,'*','*','*',0x84,'*',0x74,'*',0x8B,'*','*',0x8B };
+	const char SIGNATURE_HOSTAGE_IDLETHINK[] = "?IdleThink@CHostage@@QAEXXZ";
+	const byte HOSTAGE_IDLETHINK_REPLACE  [] = { 0xB8,0x00,0x00,0x00,0x00 };
 
 #elif defined(KE_POSIX)
 
@@ -38,6 +40,8 @@
 	const byte SIGNATURE_VALIDATE_MAP_DATA[] = { SIGNATURE_BASE ,0x84,'*',0x74,'*',0xC6 };
 	const byte SIGNATURE_PROCESS_ADD_BOT  [] = { SIGNATURE_BASE2,0x83,'*','*',0x8B,'*','*','*','*','*',0x0F };
 	const byte SIGNATURE_CLIENT_PRINT     [] = { SIGNATURE_BASE ,0x84,'*',0x0F,'*','*','*','*','*',0x8B,'*','*',0x8B,'*','*','*','*','*',0xC7 };
+	const byte SIGNATURE_HOSTAGE_IDLETHINK[] = { 0x0F,'*','*','*','*','*',0x8B,'*','*','*','*','*',0xD9,'*','*','*','*','*',0x8B,'*','*',0xD9 };
+	const char HOSTAGE_IDLETHINK_REPLACE  [] = { 0x0F,0x85 };
 
 #endif
 
