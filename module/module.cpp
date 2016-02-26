@@ -158,4 +158,6 @@ void OnServerActivate(edict_t *pEdictList, int edictCount, int clientMax)
 			PrecacheRadioSounds();
 		}
 	}
+
+	RETURN_META(MRES_IGNORED);
 }
