@@ -26,6 +26,3 @@ Thumbs.db
 # Build directories
 build/
 obj-*/
-
-# Others
-*.zip
