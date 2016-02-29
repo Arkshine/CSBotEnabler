@@ -42,12 +42,29 @@ cmdlist bot
 
 ## Installation
 
-You can download package containing everything in the [Releases section](https://github.com/Arkshine/CSBotEnabler/releases/latest).
+### Steps
 
-### Package structure
+1. Stop your server <sup id="a1">[1](#f1)</sup> 
+2. Donwload the latest moule version from [Releases section](https://github.com/Arkshine/CSBotEnabler/releases/latest)
+3. Download the bot resources files from this [archive](resources/bot_profiles.zip?raw=true) (~6 Mo)
+4. Unzip content to your server in :open_file_folder:`cstrike`
+5. Open & add an entry in :page_facing_up:`metamod/plugins.ini`:
+    <table>
+        <tr>
+            <td>Windows</td>
+            <td>`win32 addons/csbot_enabler/csbot_enabler_mm.dll`</td>
+        </tr>
+        <tr>
+            <td>Linux</td>
+            <td>`linux addons/csbot_enabler/csbot_enabler_mm_i386.so`</td>
+        </tr>
+    </table>
+6. Open & configure the cvar in :page_facing_up:`csbot_enabler/config.ini`
+7. Start your server and enjoy.
+
+### Expected files location
 
 ```
-
 ├─ addons
 │   └─ csbot_enabler
 │       ├─ config.cfg
@@ -62,24 +79,6 @@ You can download package containing everything in the [Releases section](https:/
 ├─ BotChatter.db
 └─ BotProfile.db
 ```
-
-### Steps
-
-1. Stop your server <sup id="a1">[1](#f1)</sup> and donwload latest version
-2. Unzip content to your server in :open_file_folder:`cstrike`
-3. Open & add an entry in :page_facing_up:`metamod/plugins.ini`:
-    <table>
-        <tr>
-            <td>Windows</td>
-            <td>`win32 addons/csbot_enabler/csbot_enabler_mm.dll`</td>
-        </tr>
-        <tr>
-            <td>Linux</td>
-            <td>`linux addons/csbot_enabler/csbot_enabler_mm_i386.so`</td>
-        </tr>
-    </table>
-4. Open & configure the cvar in :page_facing_up:`csbot_enabler/config.ini`
-5. Start your server and enjoy.
 
 __
 
