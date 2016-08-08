@@ -31,7 +31,6 @@ The only configuration of this module is a cvar which allows to precache radio s
 // Default: "0"
 csbot_precache_radio_sounds "0"
 ```
-:bulb: _All the resources are included in the release package._
 
 if you want to know what are the cvars and commands available for CS Bots, type in the server console:
 
@@ -47,7 +46,7 @@ cmdlist bot
 1. Stop your server <sup id="a1">[1](#f1)</sup> 
 2. Donwload the latest moule version from [Releases section](https://github.com/Arkshine/CSBotEnabler/releases/latest)
 3. Download the bot resources files from this [archive](resources/bot_profiles.zip?raw=true) (~6 Mo)
-4. Unzip content to your server in :open_file_folder:`cstrike`
+4. Unzip both content to your server in :open_file_folder:`cstrike`
 5. Open & add an entry in :page_facing_up:`metamod/plugins.ini`:
     <table>
         <tr>
@@ -59,7 +58,7 @@ cmdlist bot
             <td>`linux addons/csbot_enabler/csbot_enabler_mm_i386.so`</td>
         </tr>
     </table>
-6. Open & configure the cvar in :page_facing_up:`csbot_enabler/config.ini`
+6. Configure the cvar in :page_facing_up:`csbot_enabler/config.ini`
 7. Start your server and enjoy.
 
 ### Expected files location
