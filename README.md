@@ -44,7 +44,7 @@ cmdlist bot
 ### Steps
 
 1. Stop your server <sup id="a1">[1](#f1)</sup> 
-2. Donwload the latest moule version from [Releases section](https://github.com/Arkshine/CSBotEnabler/releases/latest)
+2. Donwload the latest module version from the [Releases section](https://github.com/Arkshine/CSBotEnabler/releases/latest)
 3. Download the bot resources files from this [archive](resources/bot_profiles.zip?raw=true) (~6 Mo)
 4. Unzip both content to your server in :open_file_folder:`cstrike`
 5. Open & add an entry in :page_facing_up:`metamod/plugins.ini`:
