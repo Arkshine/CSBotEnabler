@@ -61,6 +61,12 @@ static void ClientPrintCustom(entvars_t *client, int msg_dest, const char *msg_n
 		param3 = param4;
 		param4 = nullptr;
 	}
+	else if (param1[STATIC_LENGTH("#Cstrike_Chat_")] == 'T' || param1[STATIC_LENGTH("#Cstrike_Chat_")] == 'C')
+	{
+		param1 = "#Cstrike_Chat_T";
+		param3 = param4;
+		param4 = nullptr;
+	}
 
 	(*ClientPrintOriginalAddress)(client, msg_dest, msg_name, param1, param2, param3, param4);
 }
