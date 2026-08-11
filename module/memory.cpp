@@ -91,6 +91,25 @@ void* Memory::FindSymbol(const char *symbol)
 
 	address = GetProcAddress(static_cast<HMODULE>(m_LibraryInfos.baseAddress), symbol);
 
+#elif defined(KE_POSIX)
+
+    void *handle_list;
+    void *function;
+    handle_list = dlopen(0, RTLD_LAZY);
+    if(handle_list == 0){
+        return nullptr;
+    }
+    do{
+        if(((struct link_map *)handle_list)->l_addr == (unsigned int)m_LibraryInfos.baseAddress){
+            function = dlsym(handle_list, symbol);           
+            if(function != 0){
+                address = function;
+                break;
+            }
+        }
+        handle_list = ((struct link_map *)handle_list)->l_next;  
+    }while(handle_list != 0);
+
 #endif
 
 	return address;

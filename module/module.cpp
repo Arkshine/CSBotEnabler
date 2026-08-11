@@ -14,7 +14,7 @@
 cvar_t CvarInitPrecacheRadioSounds = { "csbot_precache_radio_sounds", "0", FCVAR_SERVER };
 cvar_t *CvarPrecacheRadioSounds;
 
-bool ModuleLoaded;
+static bool ModuleLoaded = 0;
 
 static bool EnableBotPhraseManagerInitializeFailMessage()
 {
@@ -101,7 +101,7 @@ bool EnableCsBot()
 
 		if (!address || !memUtils->RedirectFunctionCall(static_cast<byte*>(address) + 1, reinterpret_cast<void*>(signature.address), &signature.address_original))
 		{
-			LOG_CONSOLE(PLID, "   Error: Could not patch \"%s\"", MODULE_NAME, signature.pattern_info);
+			LOG_CONSOLE(PLID, "   Error: Could not patch \"%s\"", signature.pattern_info);
 		}
 
 		if (!strcmp(signature.pattern_info, "CLIENT_PRINT"))
@@ -110,15 +110,13 @@ bool EnableCsBot()
 		}
 	}
 
-#if defined(KE_WINDOWS)
 	auto address = memUtils->FindSymbol(SIGNATURE_HOSTAGE_IDLETHINK);
-#else
-	auto address = memUtils->FindPattern(SIGNATURE_HOSTAGE_IDLETHINK, sizeof(SIGNATURE_HOSTAGE_IDLETHINK));
-#endif
+	
+	address = ((byte*)address) + SIGNATURE_HOSTAGE_IDLETHINK_OFFSET;
 
 	if (!memUtils->ProtectMemory(address, sizeof(HOSTAGE_IDLETHINK_REPLACE), PAGE_EXECUTE_READWRITE))
 	{
-		LOG_CONSOLE(PLID, "   Error: Could not patch \"HOSTAGE_IDLETHINK\"", MODULE_NAME);
+		LOG_CONSOLE(PLID, "   Error: Could not patch \"%s\"", SIGNATURE_HOSTAGE_IDLETHINK);
 		return false;
 	}
 
@@ -129,21 +127,22 @@ bool EnableCsBot()
 
 void OnMetaAttach()
 {
-	LOG_CONSOLE(PLID, "   %s v%s", MODULE_NAME, MODULE_VERSION);
+	if(ModuleLoaded == 0){
+		LOG_CONSOLE(PLID, "   %s v%s", MODULE_NAME, MODULE_VERSION);
 
-	if (strcmp(GET_GAME_INFO(PLID, GINFO_NAME), "cstrike"))
-	{
-		LOG_CONSOLE(PLID, "   Status: Failed. This module is only for Counter-Strike 1.6");
-		return;
+		if (strcmp(GET_GAME_INFO(PLID, GINFO_NAME), "cstrike"))
+		{
+			LOG_CONSOLE(PLID, "   Status: Failed. This module is only for Counter-Strike 1.6");
+			return;
+		}
+
+		CVAR_REGISTER(&CvarInitPrecacheRadioSounds);
+		CvarPrecacheRadioSounds = CVAR_GET_POINTER(CvarInitPrecacheRadioSounds.name);
+
+		ModuleLoaded = EnableCsBot();
+
+		LOG_CONSOLE(PLID, "   Status: %s.\n", ModuleLoaded ? "Loaded" : "Failed");
 	}
-
-	CVAR_REGISTER(&CvarInitPrecacheRadioSounds);
-	CvarPrecacheRadioSounds = CVAR_GET_POINTER(CvarInitPrecacheRadioSounds.name);
-
-	ModuleLoaded = EnableCsBot();
-
-	LOG_CONSOLE(PLID, "   Status: %s.\n", ModuleLoaded ? "Loaded" : "Failed");
-
 }
 
 void OnServerActivate(edict_t *pEdictList, int edictCount, int clientMax)
